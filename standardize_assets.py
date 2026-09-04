@@ -4,9 +4,9 @@ from PIL import Image
 ASSETS_DIR = r"c:\Users\zulfi\OneDrive\Desktop\Project Izul\Web-Parfum\public\assets"
 BACKUP_DIR = os.path.join(ASSETS_DIR, "original_backup")
 
-TARGET_W = 1600
-TARGET_H = 2400
-BOTTOM_MARGIN = 140 # Baseline margin in pixels for the contact shadow
+TARGET_W = 800
+TARGET_H = 1200
+BOTTOM_MARGIN = 70 # Baseline margin in pixels for the contact shadow
 
 files = ["noir.png", "urban.png", "water.png", "cedar.png"]
 

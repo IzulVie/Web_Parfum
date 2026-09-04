@@ -26,13 +26,15 @@ function App() {
   const total = perfumes.length;
   const currentPerfume = perfumes[activeIndex];
 
+  const rafRef = useRef(null);
+
   // Next slide handler (with transition lock)
   const handleNext = useCallback(() => {
     if (isTransitioning) return;
     setIsTransitioning(true);
     setDirection(1);
     setActiveIndex((prev) => (prev + 1) % total);
-    setTimeout(() => setIsTransitioning(false), 950);
+    setTimeout(() => setIsTransitioning(false), 700);
   }, [total, isTransitioning]);
 
   // Prev slide handler (with transition lock)
@@ -41,7 +43,7 @@ function App() {
     setIsTransitioning(true);
     setDirection(-1);
     setActiveIndex((prev) => (prev - 1 + total) % total);
-    setTimeout(() => setIsTransitioning(false), 950);
+    setTimeout(() => setIsTransitioning(false), 700);
   }, [total, isTransitioning]);
 
   // Direct select handler
@@ -51,7 +53,7 @@ function App() {
       setIsTransitioning(true);
       setDirection(index > activeIndex ? 1 : -1);
       setActiveIndex(index);
-      setTimeout(() => setIsTransitioning(false), 950);
+      setTimeout(() => setIsTransitioning(false), 700);
     },
     [activeIndex, isTransitioning]
   );
@@ -66,16 +68,22 @@ function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleNext, handlePrev]);
 
-  // Mousemove Parallax Tracking
+  // Mousemove Parallax Tracking (Throttled via RAF on desktop only)
   const handleMouseMove = useCallback((e) => {
-    const { clientX, clientY } = e;
-    const { innerWidth, innerHeight } = window;
-    const normX = (clientX / innerWidth) * 2 - 1;
-    const normY = (clientY / innerHeight) * 2 - 1;
-    setMousePos({ x: normX, y: normY });
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+    if (rafRef.current) return;
+
+    rafRef.current = requestAnimationFrame(() => {
+      const { clientX, clientY } = e;
+      const { innerWidth, innerHeight } = window;
+      const normX = (clientX / innerWidth) * 2 - 1;
+      const normY = (clientY / innerHeight) * 2 - 1;
+      setMousePos({ x: normX, y: normY });
+      rafRef.current = null;
+    });
   }, []);
 
-  // Touch Swipe & Touch Parallax Handling
+  // Touch Swipe Handling (zero React state updates during drag to preserve 60fps)
   const handleTouchStart = (e) => {
     if (e.touches.length === 1) {
       const touch = e.touches[0];
@@ -87,14 +95,8 @@ function App() {
     }
   };
 
-  const handleTouchMove = (e) => {
-    if (e.touches.length === 1) {
-      const touch = e.touches[0];
-      const { innerWidth, innerHeight } = window;
-      const normX = (touch.clientX / innerWidth) * 2 - 1;
-      const normY = (touch.clientY / innerHeight) * 2 - 1;
-      setMousePos({ x: normX * 0.8, y: normY * 0.8 });
-    }
+  const handleTouchMove = (_e) => {
+    // Intentionally no state updates during drag to prevent main-thread stutter
   };
 
   const handleTouchEnd = (e) => {
@@ -104,8 +106,8 @@ function App() {
       const deltaY = touch.clientY - touchStartRef.current.y;
       const deltaTime = Date.now() - touchStartRef.current.time;
 
-      // Minimum swipe distance of 45px and predominantly horizontal
-      if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY) && deltaTime < 600) {
+      // Minimum swipe distance of 40px and predominantly horizontal
+      if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) && deltaTime < 500) {
         if (deltaX < 0) {
           // Swiped left -> Next fragrance
           handleNext();

@@ -27,9 +27,10 @@ const FloatingParticles = ({ currentPerfume, mousePos }) => {
     }));
   }, []);
 
-  // Parallax effect: Shift in SAME direction of mouse/touch
+  // Parallax effect: Shift in SAME direction of mouse (Desktop fine pointer only)
   useEffect(() => {
     if (!particlesRef.current.length) return;
+    if (window.matchMedia("(pointer: coarse)").matches) return;
 
     particlesData.forEach((p, idx) => {
       const el = particlesRef.current[idx];

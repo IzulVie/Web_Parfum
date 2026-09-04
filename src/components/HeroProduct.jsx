@@ -17,14 +17,15 @@ const HeroProduct = ({ currentPerfume, mousePos }) => {
   const activePerfumeRef = useRef(perfumes[0]);
   const isFirstRender = useRef(true);
 
-  // Preload all assets
+  // Preload and pre-decode all assets for instant switching
   useEffect(() => {
-    ["/assets/noir.png", "/assets/urban.png", "/assets/water.png", "/assets/cedar.png"].forEach(
-      (src) => {
-        const img = new Image();
-        img.src = src;
+    perfumes.forEach((p) => {
+      const img = new Image();
+      img.src = p.image;
+      if (img.decode) {
+        img.decode().catch(() => {});
       }
-    );
+    });
   }, []);
 
   // Synchronized GSAP transition on active perfume change
@@ -33,13 +34,13 @@ const HeroProduct = ({ currentPerfume, mousePos }) => {
       isFirstRender.current = false;
       gsap.fromTo(
         bottleImgRef.current,
-        { y: 70, scale: 0.9, opacity: 0 },
+        { y: 50, scale: 0.94, opacity: 0 },
         {
           y: 0,
           scale: 1,
           opacity: 1,
-          duration: 0.85,
-          ease: "back.out(1.2)",
+          duration: 0.75,
+          ease: "power3.out",
         }
       );
       return;
@@ -51,29 +52,26 @@ const HeroProduct = ({ currentPerfume, mousePos }) => {
     activePerfumeRef.current = nextPerfume;
 
     const tl = gsap.timeline();
+    const travelDistance = window.innerHeight < 700 ? 75 : 110;
 
-    // 1. Drop the OLD bottle down out of frame (still showing previous image!)
+    // 1. Smoothly glide the old bottle down with opacity fade
     tl.to(bottleImgRef.current, {
-      y: 340,
-      scale: 0.8,
+      y: travelDistance,
+      scale: 0.94,
       opacity: 0,
-      duration: 0.35,
-      ease: "power2.in",
+      duration: 0.32,
+      ease: "power2.inOut",
       onComplete: () => {
-        // Swap image asset directly on DOM while bottle is completely off-screen
+        // Swap image asset directly on DOM while bottle is completely transparent
         if (bottleImgRef.current) {
           bottleImgRef.current.src = nextPerfume.image;
           bottleImgRef.current.alt = `VIE ${nextPerfume.name} Luxury Perfume Bottle`;
-          bottleImgRef.current.style.filter =
-            nextPerfume.theme === "light"
-              ? "drop-shadow(0 14px 22px rgba(0,0,0,0.14)) drop-shadow(0 28px 40px rgba(0,0,0,0.06))"
-              : "drop-shadow(0 20px 30px rgba(0,0,0,0.5)) drop-shadow(0 40px 60px rgba(0,0,0,0.3))";
         }
         if (shadowRef.current) {
           shadowRef.current.style.background =
             nextPerfume.theme === "light"
-              ? "radial-gradient(ellipse at center, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.06) 55%, transparent 75%)"
-              : "radial-gradient(ellipse at center, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.25) 55%, transparent 75%)";
+              ? "radial-gradient(ellipse at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.05) 55%, transparent 75%)"
+              : "radial-gradient(ellipse at center, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.22) 55%, transparent 75%)";
         }
       },
     });
@@ -82,24 +80,24 @@ const HeroProduct = ({ currentPerfume, mousePos }) => {
     tl.to(
       shadowRef.current,
       {
-        scaleX: 0.35,
-        opacity: 0.1,
-        duration: 0.32,
-        ease: "power2.in",
+        scaleX: 0.4,
+        opacity: 0.15,
+        duration: 0.3,
+        ease: "power2.inOut",
       },
       0
     );
 
-    // 2. Rise the NEW bottle up from bottom into center with elastic bounce
+    // 2. Rise the NEW bottle smoothly into center with luxury deceleration
     tl.fromTo(
       bottleImgRef.current,
-      { y: 340, scale: 0.8, opacity: 0 },
+      { y: travelDistance, scale: 0.94, opacity: 0 },
       {
         y: 0,
         scale: 1,
         opacity: 1,
-        duration: 0.85,
-        ease: "back.out(1.2)",
+        duration: 0.56,
+        ease: "power3.out",
       }
     );
 
@@ -109,10 +107,10 @@ const HeroProduct = ({ currentPerfume, mousePos }) => {
       {
         scaleX: 1,
         opacity: 1,
-        duration: 0.65,
+        duration: 0.5,
         ease: "power2.out",
       },
-      "-=0.6"
+      "-=0.45"
     );
 
     return () => {
@@ -120,14 +118,15 @@ const HeroProduct = ({ currentPerfume, mousePos }) => {
     };
   }, [currentPerfume]);
 
-  // Mouse & Touch Parallax effect: Shift in REVERSE direction with 3D tilt
+  // Mouse Parallax effect: Shift in REVERSE direction with 3D tilt (Desktop fine pointers only)
   useEffect(() => {
     if (!bottleWrapperRef.current) return;
+    if (window.matchMedia("(pointer: coarse)").matches) return;
 
-    const shiftX = -mousePos.x * 20; // Reverse X
-    const shiftY = -mousePos.y * 14; // Reverse Y
-    const tiltY = -mousePos.x * 6;   // 3D Y-axis tilt
-    const tiltX = mousePos.y * 5;    // 3D X-axis tilt
+    const shiftX = -mousePos.x * 18; // Reverse X
+    const shiftY = -mousePos.y * 12; // Reverse Y
+    const tiltY = -mousePos.x * 5;   // 3D Y-axis tilt
+    const tiltX = mousePos.y * 4;    // 3D X-axis tilt
 
     gsap.to(bottleWrapperRef.current, {
       x: shiftX,
@@ -135,7 +134,7 @@ const HeroProduct = ({ currentPerfume, mousePos }) => {
       rotateY: tiltY,
       rotateX: tiltX,
       transformPerspective: 1000,
-      duration: 0.7,
+      duration: 0.6,
       ease: "power2.out",
       overwrite: "auto",
     });
@@ -149,15 +148,16 @@ const HeroProduct = ({ currentPerfume, mousePos }) => {
     >
       <div
         ref={bottleWrapperRef}
-        className="relative flex flex-col items-center justify-center transform-style-3d will-change-transform -translate-y-2 sm:-translate-y-1 md:translate-y-0"
+        className="relative flex flex-col items-center justify-center transform-style-3d will-change-transform -translate-y-1 sm:translate-y-0"
+        style={{ transform: "translate3d(0,0,0)" }}
       >
         <img
           ref={bottleImgRef}
           src={perfumes[0].image}
           alt={`VIE ${perfumes[0].name} Luxury Perfume Bottle`}
-          className="h-auto w-[46vw] sm:w-[36vw] md:w-[26vw] lg:w-[21vw] max-w-[210px] sm:max-w-[280px] md:max-w-[340px] lg:max-w-[380px] max-h-[44vh] sm:max-h-[52vh] md:max-h-[60vh] lg:max-h-[64vh] object-contain cursor-pointer pointer-events-auto transition-all duration-300 select-none"
+          className="h-auto w-[40vw] sm:w-[32vw] md:w-[26vw] lg:w-[21vw] max-w-[170px] sm:max-w-[240px] md:max-w-[320px] lg:max-w-[380px] max-h-[36vh] sm:max-h-[46vh] md:max-h-[56vh] lg:max-h-[64vh] object-contain cursor-pointer pointer-events-auto transition-all duration-300 select-none will-change-transform"
           style={{
-            filter: "drop-shadow(0 20px 30px rgba(0,0,0,0.5)) drop-shadow(0 40px 60px rgba(0,0,0,0.3))",
+            filter: "drop-shadow(0 10px 18px rgba(0,0,0,0.28))",
           }}
         />
 
@@ -166,7 +166,7 @@ const HeroProduct = ({ currentPerfume, mousePos }) => {
           ref={shadowRef}
           className="absolute bottom-[4.5%] sm:bottom-[5.5%] left-1/2 -translate-x-1/2 w-[48%] h-4 sm:h-6 rounded-full pointer-events-none transition-colors duration-700"
           style={{
-            background: "radial-gradient(ellipse at center, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.25) 55%, transparent 75%)",
+            background: "radial-gradient(ellipse at center, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.22) 55%, transparent 75%)",
             filter: "blur(5px)",
           }}
         />

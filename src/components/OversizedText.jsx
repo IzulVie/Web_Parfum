@@ -32,7 +32,7 @@ const OversizedText = ({ currentPerfume, direction }) => {
     const nextPerfume = currentPerfume;
     activePerfumeRef.current = nextPerfume;
 
-    const slideDistance = window.innerWidth < 640 ? 100 : 160;
+    const slideDistance = window.innerWidth < 640 ? 60 : 120;
     const exitX = direction > 0 ? -slideDistance : slideDistance;
     const enterX = direction > 0 ? slideDistance : -slideDistance;
 
@@ -42,9 +42,9 @@ const OversizedText = ({ currentPerfume, direction }) => {
     tl.to(textRef.current, {
       x: exitX,
       opacity: 0,
-      scale: 0.92,
-      duration: 0.35,
-      ease: "power2.in",
+      scale: 0.94,
+      duration: 0.3,
+      ease: "power2.inOut",
       onComplete: () => {
         if (textRef.current) {
           textRef.current.textContent = nextPerfume.name;
@@ -60,12 +60,12 @@ const OversizedText = ({ currentPerfume, direction }) => {
     // 2. New text slides in from opposite direction
     tl.fromTo(
       textRef.current,
-      { x: enterX, opacity: 0, scale: 1.05 },
+      { x: enterX, opacity: 0, scale: 1.04 },
       {
         x: 0,
         opacity: 0.85,
         scale: 1,
-        duration: 0.85,
+        duration: 0.58,
         ease: "power3.out",
       }
     );
@@ -83,11 +83,12 @@ const OversizedText = ({ currentPerfume, direction }) => {
     >
       <h1
         ref={textRef}
-        className="font-cinzel text-[24vw] sm:text-[22vw] md:text-[21vw] font-black tracking-[0.2em] sm:tracking-[0.25em] leading-none uppercase text-center m-0 p-0 -translate-y-2 sm:-translate-y-1 md:translate-y-0"
+        className="font-cinzel text-[22vw] sm:text-[22vw] md:text-[21vw] font-black tracking-[0.2em] sm:tracking-[0.25em] leading-none uppercase text-center m-0 p-0 will-change-transform"
         style={{
           color: perfumes[0].textHex,
           textShadow: "0 10px 40px rgba(0, 0, 0, 0.25)",
           WebkitTextStroke: "1px rgba(255,255,255,0.06)",
+          transform: "translate3d(0,0,0)",
         }}
       >
         {perfumes[0].name}

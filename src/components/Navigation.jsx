@@ -32,18 +32,18 @@ const Navigation = ({
   return (
     <div
       id="ui-navigation-layer"
-      className={`absolute inset-0 z-50 pointer-events-none flex flex-col justify-between p-4 sm:p-6 lg:p-10 transition-colors duration-700 ${textColor}`}
+      className={`absolute inset-0 z-50 pointer-events-none flex flex-col justify-between p-3.5 sm:p-6 lg:p-10 transition-colors duration-700 ${textColor}`}
     >
       {/* 1. TOP SECTION (Header + Mobile Product Title) */}
-      <div className="w-full flex flex-col space-y-3 pointer-events-auto">
+      <div className="w-full flex flex-col space-y-2 sm:space-y-3 pointer-events-auto">
         {/* Brand Navbar */}
         <header className="flex items-center justify-between w-full">
           {/* Brand Logo */}
           <div className="flex flex-col cursor-pointer group">
-            <span className="font-cinzel text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-[0.28em] sm:tracking-[0.35em] leading-none transition-transform group-hover:scale-105">
+            <span className="font-cinzel text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-[0.28em] sm:tracking-[0.35em] leading-none transition-transform group-hover:scale-105">
               VIE
             </span>
-            <span className="text-[8px] sm:text-[9px] tracking-[0.25em] sm:tracking-[0.3em] uppercase opacity-70 mt-1 font-sans">
+            <span className="text-[7.5px] sm:text-[9px] tracking-[0.25em] sm:tracking-[0.3em] uppercase opacity-70 mt-0.5 font-sans">
               Haute Parfumerie
             </span>
           </div>
@@ -63,7 +63,7 @@ const Navigation = ({
           </nav>
 
           {/* Right Utility Buttons */}
-          <div className="flex items-center space-x-3 sm:space-x-5">
+          <div className="flex items-center space-x-2.5 sm:space-x-5">
             <div className="hidden sm:flex items-center space-x-2 text-[10px] tracking-[0.2em] uppercase font-semibold px-3 py-1.5 rounded-full border border-current/20 backdrop-blur-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               <span>Editions 2026</span>
@@ -74,35 +74,36 @@ const Navigation = ({
               aria-label="Shopping Bag"
               className={`relative p-2 sm:p-2.5 rounded-full border ${borderCol} ${bgGlass} transition-all duration-300 hover:scale-105 active:scale-95`}
             >
-              <ShoppingBag className="w-4 h-4" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-black text-[9px] font-bold flex items-center justify-center">
+              <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-amber-500 text-black text-[8px] sm:text-[9px] font-bold flex items-center justify-center">
                 1
               </span>
             </button>
           </div>
         </header>
 
-        {/* Mobile & Tablet Portrait Title (< lg): Sits neatly at top below logo without blocking bottle */}
-        <div className="lg:hidden flex flex-col space-y-1.5 pt-1 max-w-[70%]">
+        {/* Mobile & Tablet Portrait Title (< lg): Compact header card above bottle */}
+        <div className="lg:hidden flex flex-col space-y-1 pt-0.5 w-full">
           <div className="flex items-center space-x-2">
             <span className="text-[10px] sm:text-xs font-mono tracking-widest uppercase opacity-60">
               N° 0{currentPerfume.id}
             </span>
-            <span className="w-4 h-[1px] bg-current opacity-40"></span>
+            <span className="w-3 h-[1px] bg-current opacity-40"></span>
             <span className="text-[10px] sm:text-xs tracking-[0.2em] uppercase font-semibold text-amber-500">
               {currentPerfume.subtitle}
             </span>
           </div>
 
-          <h2 className="font-cinzel text-xl sm:text-2xl font-bold tracking-wide">
+          <h2 className="font-cinzel text-lg sm:text-2xl font-bold tracking-wide leading-tight">
             {currentPerfume.fullName}
           </h2>
 
-          <div className="flex flex-wrap gap-1 pt-0.5">
+          {/* Scent notes in a single clean horizontal scroll row */}
+          <div className="flex items-center space-x-1.5 overflow-x-auto no-scrollbar py-0.5 w-full">
             {currentPerfume.notes.map((note) => (
               <span
                 key={note}
-                className={`text-[9px] sm:text-[10px] tracking-wide px-2 py-0.5 rounded-full border ${borderCol} ${bgGlass}`}
+                className={`text-[8.5px] sm:text-[10px] tracking-wide uppercase px-2 py-0.5 rounded-full border whitespace-nowrap shrink-0 ${borderCol} ${bgGlass}`}
               >
                 {note}
               </span>
@@ -168,35 +169,35 @@ const Navigation = ({
       </div>
 
       {/* 3. BOTTOM SECTION: Mobile CTA + Slider Controls */}
-      <div className="w-full flex flex-col space-y-3 pointer-events-auto">
+      <div className="w-full flex flex-col space-y-2 sm:space-y-3 pointer-events-auto">
         {/* Mobile & Tablet Portrait Price & CTA Bar (< lg) */}
-        <div className="lg:hidden flex items-center justify-between gap-3 pt-1">
+        <div className="lg:hidden flex items-center justify-between gap-3 pt-0.5">
           <div>
-            <span className="text-[9px] font-mono tracking-widest opacity-60 block">
+            <span className="text-[8.5px] font-mono tracking-widest opacity-60 block leading-none mb-0.5">
               {currentPerfume.volume}
             </span>
-            <span className="font-cinzel text-2xl font-bold tracking-wider">
+            <span className="font-cinzel text-xl sm:text-2xl font-bold tracking-wider leading-none">
               {currentPerfume.price}
             </span>
           </div>
 
           <button
             id="mobile-acquire-btn"
-            className={`py-2.5 px-5 rounded-full text-[11px] font-semibold tracking-[0.2em] uppercase border transition-all duration-300 active:scale-95 flex items-center space-x-2 shrink-0 ${
+            className={`py-2 px-4.5 rounded-full text-[10px] sm:text-[11px] font-semibold tracking-[0.2em] uppercase border transition-all duration-300 active:scale-95 flex items-center space-x-1.5 shrink-0 ${
               isLight
                 ? "bg-neutral-900 text-white border-neutral-900 active:bg-neutral-800"
                 : "bg-white text-neutral-900 border-white active:bg-neutral-100"
             }`}
           >
             <span>Acquire</span>
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-3 h-3" />
           </button>
         </div>
 
         {/* Bottom Slider Bar (Shared across all devices) */}
-        <footer className="flex items-center justify-between gap-2 sm:gap-4 w-full border-t border-current/15 pt-3 sm:pt-4">
+        <footer className="flex items-center justify-between gap-2 sm:gap-4 w-full border-t border-current/15 pt-2 sm:pt-4">
           {/* Variant Selectors (Pills) */}
-          <div className="flex items-center space-x-1.5 sm:space-x-3 overflow-x-auto no-scrollbar py-1">
+          <div className="flex items-center space-x-1.5 sm:space-x-3 overflow-x-auto no-scrollbar py-0.5">
             {perfumes.map((perfume, idx) => {
               const isActive = idx === activeIndex;
               return (
@@ -204,7 +205,7 @@ const Navigation = ({
                   key={perfume.id}
                   id={`variant-btn-${perfume.name.toLowerCase()}`}
                   onClick={() => onSelectIndex(idx)}
-                  className={`px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-[11px] tracking-[0.15em] sm:tracking-[0.2em] uppercase font-medium transition-all duration-300 border shrink-0 ${
+                  className={`px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[9.5px] sm:text-[11px] tracking-[0.15em] sm:tracking-[0.2em] uppercase font-medium transition-all duration-300 border shrink-0 ${
                     isActive
                       ? isLight
                         ? "bg-neutral-900 text-white border-neutral-900 scale-105 font-bold"
@@ -220,18 +221,18 @@ const Navigation = ({
 
           {/* Active Index Counter & Navigation Arrows */}
           <div className="flex items-center space-x-2 sm:space-x-5 shrink-0">
-            <div className="text-[11px] sm:text-xs font-mono tracking-widest">
-              <span className="font-bold text-sm">0{activeIndex + 1}</span>
+            <div className="text-[10px] sm:text-xs font-mono tracking-widest">
+              <span className="font-bold text-xs sm:text-sm">0{activeIndex + 1}</span>
               <span className="opacity-40 mx-1 sm:mx-1.5">/</span>
               <span className="opacity-50">0{perfumes.length}</span>
             </div>
 
-            <div className="flex items-center space-x-1.5 sm:space-x-2.5">
+            <div className="flex items-center space-x-1 sm:space-x-2.5">
               <button
                 id="slider-prev-btn"
                 onClick={onPrev}
                 aria-label="Previous Fragrance"
-                className={`p-2.5 sm:p-3 rounded-full border ${borderCol} ${bgGlass} transition-all duration-300 hover:scale-110 active:scale-90 group`}
+                className={`p-2 sm:p-3 rounded-full border ${borderCol} ${bgGlass} transition-all duration-300 hover:scale-110 active:scale-90 group`}
               >
                 <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover:-translate-x-0.5" />
               </button>
@@ -239,7 +240,7 @@ const Navigation = ({
                 id="slider-next-btn"
                 onClick={onNext}
                 aria-label="Next Fragrance"
-                className={`p-2.5 sm:p-3 rounded-full border ${borderCol} ${bgGlass} transition-all duration-300 hover:scale-110 active:scale-90 group`}
+                className={`p-2 sm:p-3 rounded-full border ${borderCol} ${bgGlass} transition-all duration-300 hover:scale-110 active:scale-90 group`}
               >
                 <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover:translate-x-0.5" />
               </button>
