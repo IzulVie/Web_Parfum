@@ -1,20 +1,20 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
+import { perfumes } from "../data/perfumes";
 
 /**
  * Layer 2 (z-20): Oversized typography (using the `name` property).
- * Centered, extremely large (21vw), bold, tracking-widest, acting as a watermark.
- * Animation:
- * 1. Old text slides out in direction of slide and fades out.
- * 2. Only after old text is off-screen/invisible, text content swaps to new perfume.
- * 3. New text slides in from opposite direction into center.
+ * Pure GSAP Controlled Transitions:
+ * - Old text slides out and fades.
+ * - Text content and color swapped directly in onComplete when text is off-screen.
+ * - New text slides in from opposite direction into center.
+ * - Zero state reconciliation lag.
  */
 const OversizedText = ({ currentPerfume, direction }) => {
   const containerRef = useRef(null);
   const textRef = useRef(null);
+  const activePerfumeRef = useRef(perfumes[0]);
   const isFirstRender = useRef(true);
-
-  const [displayedText, setDisplayedText] = useState(currentPerfume);
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -27,9 +27,12 @@ const OversizedText = ({ currentPerfume, direction }) => {
       return;
     }
 
-    if (currentPerfume.id === displayedText.id) return;
+    if (currentPerfume.id === activePerfumeRef.current.id) return;
 
-    const slideDistance = 160;
+    const nextPerfume = currentPerfume;
+    activePerfumeRef.current = nextPerfume;
+
+    const slideDistance = window.innerWidth < 640 ? 100 : 160;
     const exitX = direction > 0 ? -slideDistance : slideDistance;
     const enterX = direction > 0 ? slideDistance : -slideDistance;
 
@@ -40,28 +43,32 @@ const OversizedText = ({ currentPerfume, direction }) => {
       x: exitX,
       opacity: 0,
       scale: 0.92,
-      duration: 0.38,
+      duration: 0.35,
       ease: "power2.in",
-    });
-
-    // Swap text when completely invisible
-    tl.add(() => {
-      if (textRef.current) {
-        textRef.current.textContent = currentPerfume.name;
-        textRef.current.style.color = currentPerfume.textHex;
-      }
-      setDisplayedText(currentPerfume);
-      gsap.set(textRef.current, { x: enterX, opacity: 0, scale: 1.05 });
+      onComplete: () => {
+        if (textRef.current) {
+          textRef.current.textContent = nextPerfume.name;
+          textRef.current.style.color = nextPerfume.textHex;
+          textRef.current.style.webkitTextStroke =
+            nextPerfume.theme === "light"
+              ? "1px rgba(0,0,0,0.06)"
+              : "1px rgba(255,255,255,0.06)";
+        }
+      },
     });
 
     // 2. New text slides in from opposite direction
-    tl.to(textRef.current, {
-      x: 0,
-      opacity: 0.85,
-      scale: 1,
-      duration: 0.85,
-      ease: "power3.out",
-    });
+    tl.fromTo(
+      textRef.current,
+      { x: enterX, opacity: 0, scale: 1.05 },
+      {
+        x: 0,
+        opacity: 0.85,
+        scale: 1,
+        duration: 0.85,
+        ease: "power3.out",
+      }
+    );
 
     return () => {
       tl.kill();
@@ -76,17 +83,14 @@ const OversizedText = ({ currentPerfume, direction }) => {
     >
       <h1
         ref={textRef}
-        className="font-cinzel text-[21vw] font-black tracking-[0.25em] leading-none uppercase text-center m-0 p-0"
+        className="font-cinzel text-[24vw] sm:text-[22vw] md:text-[21vw] font-black tracking-[0.2em] sm:tracking-[0.25em] leading-none uppercase text-center m-0 p-0 -translate-y-2 sm:-translate-y-1 md:translate-y-0"
         style={{
-          color: displayedText.textHex,
+          color: perfumes[0].textHex,
           textShadow: "0 10px 40px rgba(0, 0, 0, 0.25)",
-          WebkitTextStroke:
-            currentPerfume.theme === "light"
-              ? "1px rgba(0,0,0,0.06)"
-              : "1px rgba(255,255,255,0.06)",
+          WebkitTextStroke: "1px rgba(255,255,255,0.06)",
         }}
       >
-        {displayedText.name}
+        {perfumes[0].name}
       </h1>
     </div>
   );

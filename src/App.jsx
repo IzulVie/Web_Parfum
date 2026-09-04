@@ -9,10 +9,10 @@ import Navigation from "./components/Navigation";
 /**
  * Main App Component:
  * - Manages activeIndex and navigation direction
- * - Debounces rapid clicks during active animations to guarantee fluid luxury motion
- * - Listens for mousemove events to provide 3D parallax coordinates
- * - Enforces exact 100vh / 100vw overflow-hidden layout
- * - Synchronizes all 5 z-index layers
+ * - Debounces rapid clicks/swipes during active transitions
+ * - Supports Mouse Parallax + Touch Drag Parallax + Swipe Gestures (Swipe Left / Right)
+ * - Enforces dynamic viewport height (100dvh) for seamless mobile Safari / Chrome support
+ * - Synchronizes all 5 luxury z-index layers
  */
 function App() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -20,6 +20,8 @@ function App() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isTransitioning, setIsTransitioning] = useState(false);
   const containerRef = useRef(null);
+
+  const touchStartRef = useRef({ x: 0, y: 0, time: 0 });
 
   const total = perfumes.length;
   const currentPerfume = perfumes[activeIndex];
@@ -73,12 +75,57 @@ function App() {
     setMousePos({ x: normX, y: normY });
   }, []);
 
+  // Touch Swipe & Touch Parallax Handling
+  const handleTouchStart = (e) => {
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      touchStartRef.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        time: Date.now(),
+      };
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      const { innerWidth, innerHeight } = window;
+      const normX = (touch.clientX / innerWidth) * 2 - 1;
+      const normY = (touch.clientY / innerHeight) * 2 - 1;
+      setMousePos({ x: normX * 0.8, y: normY * 0.8 });
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (e.changedTouches.length === 1) {
+      const touch = e.changedTouches[0];
+      const deltaX = touch.clientX - touchStartRef.current.x;
+      const deltaY = touch.clientY - touchStartRef.current.y;
+      const deltaTime = Date.now() - touchStartRef.current.time;
+
+      // Minimum swipe distance of 45px and predominantly horizontal
+      if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY) && deltaTime < 600) {
+        if (deltaX < 0) {
+          // Swiped left -> Next fragrance
+          handleNext();
+        } else {
+          // Swiped right -> Previous fragrance
+          handlePrev();
+        }
+      }
+    }
+  };
+
   return (
     <main
       ref={containerRef}
       onMouseMove={handleMouseMove}
-      className="relative w-screen h-screen overflow-hidden select-none bg-black"
-      style={{ width: "100vw", height: "100vh" }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      className="relative w-screen h-screen h-[100dvh] overflow-hidden select-none bg-black touch-manipulation"
+      style={{ width: "100vw", height: "100dvh" }}
     >
       {/* Layer 1 (z-10): Fullscreen Morphing Background */}
       <Background currentPerfume={currentPerfume} />
