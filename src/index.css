@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-serif: 'Cinzel', serif;
+    --font-garamond: 'Cormorant Garamond', serif;
+    --font-sans: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  html, body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-sans);
+  }
+
+  * {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+}
+
+.font-cinzel {
+  font-family: 'Cinzel', serif;
+}
+
+.font-garamond {
+  font-family: 'Cormorant Garamond', serif;
+}
+
+/* Custom glow & shadow filters */
+.hero-bottle-shadow {
+  filter: drop-shadow(0 25px 35px rgba(0, 0, 0, 0.55)) drop-shadow(0 50px 70px rgba(0, 0, 0, 0.35));
+}
+
+.hero-bottle-shadow-light {
+  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.2)) drop-shadow(0 40px 60px rgba(0, 0, 0, 0.12));
+}
+
+/* Subtle particle pulse animations */
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.1);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 4s ease-in-out infinite alternate;
+}
