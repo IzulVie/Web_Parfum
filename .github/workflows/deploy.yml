@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-deploy:
-    name: Build & Deploy to Hostinger
+    name: Build & Deploy to Hostinger (SSH)
     runs-on: ubuntu-latest
 
     steps:
@@ -27,14 +27,13 @@ jobs:
       - name: 🏗️ Build production bundle
         run: npm run build
 
-      - name: 🚀 Deploy to Hostinger via FTPS
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: 🚀 Deploy to Hostinger via SSH/SCP
+        uses: appleboy/scp-action@v0.1.7
         with:
-          server: ${{ secrets.FTP_SERVER }}
+          host: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          port: 21
-          security: loose
-          local-dir: ./dist/
-          server-dir: public_html/
+          port: 65002
+          source: "dist/*"
+          target: "public_html"
+          strip_components: 1
